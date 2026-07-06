@@ -7,7 +7,9 @@ import {
 } from "../../config/config.js";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // 587 ke liye false
   auth: {
     type: "OAuth2",
     user: GOOGLE_USER,
@@ -15,7 +17,8 @@ const transporter = nodemailer.createTransport({
     clientSecret: GOOGLE_CLIENT_SECRET,
     refreshToken: GOOGLE_REFRESH_TOKEN,
   },
-  family: 4,
+  family: 4, // Force IPv4
+  connectionTimeout: 10000, // 10 second timeout, jaldi pata chal jayega fail hua ya nahi
 });
 
 // Verify the connection configuration
@@ -31,15 +34,14 @@ transporter.verify((error, success) => {
 const sendEmail = async (to, subject, text, html) => {
   try {
     const info = await transporter.sendMail({
-      from: `"Sir Adamjee Institute" <${GOOGLE_USER}>`, // sender address
-      to, // list of receivers
-      subject, // Subject line
-      text, // plain text body
-      html, // html body
+      from: `"Sir Adamjee Institute" <${GOOGLE_USER}>`,
+      to,
+      subject,
+      text,
+      html,
     });
 
     console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   } catch (error) {
     console.error("Error sending email:", error);
   }

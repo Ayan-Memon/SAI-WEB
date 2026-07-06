@@ -12,6 +12,7 @@ import { FRONTEND_URL } from "./config/config.js";
 const app = express();
 
 // middlewares
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
