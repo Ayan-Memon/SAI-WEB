@@ -7,6 +7,7 @@ import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/post.route.js";
 import facultyRouter from "./routes/faculty.route.js";
 import { multerErrorHandler } from "./middlewares/upload.middleware.js";
+import { FRONTEND_URL } from "./config/config.js";
 
 const app = express();
 
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://192.168.100.116:3000"],
+    origin: [FRONTEND_URL],
     credentials: true,
   }),
 );

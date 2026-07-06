@@ -6,6 +6,6 @@ const port = PORT || 3000;
 
 connectDB();
 
-app.listen(PORT, `0.0.0.0` , () =>
+app.listen(PORT, () =>
   console.log(`Server Started Successfully on Port: ${port}`),
 );

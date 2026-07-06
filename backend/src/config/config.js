@@ -67,6 +67,10 @@ if (!process.env.IMAGEKIT_URL_ENDPOINT) {
   );
 }
 
+if (!process.env.FRONTEND_URL) {
+  throw new Error("FRONTEND_URL is not defined in environment variables");
+}
+
 export const {
   REFRESH_JWT_SECRET,
   ACCESS_JWT_SECRET,
@@ -81,4 +85,5 @@ export const {
   IMAGEKIT_PUBLIC_KEY,
   IMAGEKIT_PRIVATE_KEY,
   IMAGEKIT_URL_ENDPOINT,
+  FRONTEND_URL,
 } = process.env;
