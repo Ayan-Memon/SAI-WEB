@@ -1,0 +1,20 @@
+# Node version - agar tumhe pata hai konsi version use kar rahe ho to wo daal dena
+FROM node:18-alpine
+
+# App ka working directory container ke andar
+WORKDIR /app
+
+# Pehle sirf package files copy karo (caching ke liye better hai)
+COPY package*.json ./
+
+# Dependencies install karo
+RUN npm install --production
+
+# Ab baaki poora code copy karo
+COPY . .
+
+# Jis port pe app chal rahi hai
+EXPOSE 5000
+
+# App start karne ka command
+CMD ["node", "server.js"]
