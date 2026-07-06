@@ -16,6 +16,8 @@ import sessionModel from "../models/session.model.js";
 import passwordResetModel from "../models/resetPassword.model.js";
 // email
 // import { sendEmail } from "../services/email/resend.email.service.js";  <RESEND EMAIL SERVICE>
+// import sendEmail from "../services/email/nodemailer.email.service.js"; <NODEMAILER EMAIL SERVICE>
+import sendEmail from "../services/email/brevo.email.service.js";
 import sendEmail from "../services/email/nodemailer.email.service.js";
 import verifyEmailTemplate from "../services/email/templates/verifyEmail.template.js";
 import forgetPasswordTemplate from "../services/email/templates/forgetPassword.template.js";
@@ -24,6 +26,7 @@ import {
   ACCESS_JWT_SECRET,
   REFRESH_JWT_SECRET,
   NODE_ENV,
+  FRONTEND_URL,
 } from "../config/config.js";
 
 export const register = async (req, res) => {
@@ -89,15 +92,15 @@ export const register = async (req, res) => {
   });
 
   //   send verification email
-  const verificationLink = `http://localhost:3000/verify-email?code=${verificationCode}`;
+  const verificationLink = `${FRONTEND_URL}/verify-email?code=${verificationCode}`;
 
   const subject = "Verify your email";
 
   const html = verifyEmailTemplate(verificationLink);
 
-  // await sendEmail(email, subject, html);
+  await sendEmail(email, subject, html);
 
-  await sendEmail(email, subject, "Verification Link", html);
+  // await sendEmail(email, subject, "Verification Link", html);
 
   //   const refreshToken = jwt.sign({ user: newUser._id }, REFRESH_JWT_SECRET, {
   //     expiresIn: "7d",
@@ -350,15 +353,15 @@ export const sendVerificationEmail = async (req, res) => {
     verificationLinkExpireAt: new Date(Date.now() + 15 * 60 * 1000),
   });
 
-  const verificationLink = `http://localhost:3000/verify-email?code=${verificationCode}`;
+  const verificationLink = `${FRONTEND_URL}/verify-email?code=${verificationCode}`;
 
   const subject = "Verify your email";
 
   const html = verifyEmailTemplate(verificationLink);
 
-  // await sendEmail(email, subject, html);
+  await sendEmail(email, subject, html);
 
-  await sendEmail(email, subject, "Verification Link", html);
+  // await sendEmail(email, subject, "Verification Link", html);
 
   res.status(200).json({
     success: true,

@@ -71,6 +71,10 @@ if (!process.env.FRONTEND_URL) {
   throw new Error("FRONTEND_URL is not defined in environment variables");
 }
 
+if (!process.env.BREVO_API_KEY) {
+  throw new Error("BREVO_API_KEY is not defined in environment variables");
+}
+
 export const {
   REFRESH_JWT_SECRET,
   ACCESS_JWT_SECRET,
@@ -86,4 +90,5 @@ export const {
   IMAGEKIT_PRIVATE_KEY,
   IMAGEKIT_URL_ENDPOINT,
   FRONTEND_URL,
+  BREVO_API_KEY,
 } = process.env;
