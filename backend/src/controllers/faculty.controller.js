@@ -1,5 +1,5 @@
 import facultyModel from "../models/faculty.model.js";
-import imagekit from "../utils/imagekit.js";
+import imagekit from "../utils/imageKit.js";
 
 export const getFacultiesByDepartment = async (req, res) => {
   const { department } = req.params;
