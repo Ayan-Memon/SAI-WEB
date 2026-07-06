@@ -1,4 +1,4 @@
-import imagekit from "../utils/imagekit.js";
+import imagekit from "../utils/imageKit.js";
 import postModel from "../models/post.model.js";
 
 // upload posts
