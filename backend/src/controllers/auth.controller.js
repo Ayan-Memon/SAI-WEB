@@ -18,7 +18,6 @@ import passwordResetModel from "../models/resetPassword.model.js";
 // import { sendEmail } from "../services/email/resend.email.service.js";  <RESEND EMAIL SERVICE>
 // import sendEmail from "../services/email/nodemailer.email.service.js"; <NODEMAILER EMAIL SERVICE>
 import sendEmail from "../services/email/brevo.email.service.js";
-import sendEmail from "../services/email/nodemailer.email.service.js";
 import verifyEmailTemplate from "../services/email/templates/verifyEmail.template.js";
 import forgetPasswordTemplate from "../services/email/templates/forgetPassword.template.js";
 // config
