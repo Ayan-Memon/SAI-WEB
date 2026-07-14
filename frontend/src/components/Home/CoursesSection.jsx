@@ -51,7 +51,7 @@ const CoursesSection = () => {
           </p>
           <p className="font-body md:text-sm text-xs font-normal leading-relaxed text-wide text-secondary">
             <strong>Previous Result: </strong>
-            Minimum 60% marks in SSC Part I or its equivalent. Note: O’
+            Minimum 60% marks in SSC Part I or its equivalent. Note: O'
             Levels/IB students must have appeared in Minimum 8 subjects
             including English, Urdu, Islamiat and Pakistan Studies.
           </p>
@@ -66,7 +66,7 @@ const CoursesSection = () => {
             MCQs and Essay Writing in Urdu and English. Candidates unable to
             clear CAT will be given only one chance to re-appear.
           </p>
-          <p className="font-body text-sm font-normal leading-relaxed text-wide text-secondary">
+          <p className="font-body md:text-sm text-xs font-normal leading-relaxed text-wide text-secondary">
             <strong>Interview: </strong>
             Candidates are required to appear for interview, where they are
             evaluated for their confidence, behaviour, appearance, communication

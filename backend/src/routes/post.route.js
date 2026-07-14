@@ -6,6 +6,7 @@ import {
   getAllFolderNames,
   uploadPosts,
   deletePost,
+  deleteFolder,
 } from "../controllers/posts.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
 
@@ -19,16 +20,20 @@ router.post(
   upload.array("images"),
   tryCatch(uploadPosts),
 );
-router.get(
-  "/get-folder-names",
-  tryCatch(getAllFolderNames),
-);
+router.get("/get-folder-names", tryCatch(getAllFolderNames));
 
 router.delete(
   "/delete-post/:id",
   authCheck,
-  authorizeRole("admin"),
+  authorizeRole("admin", "social_handler"),
   tryCatch(deletePost),
+);
+
+router.delete(
+  "/delete-folder/:folderName",
+  authCheck,
+  authorizeRole("admin", "social_handler"),
+  tryCatch(deleteFolder),
 );
 
 export default router;

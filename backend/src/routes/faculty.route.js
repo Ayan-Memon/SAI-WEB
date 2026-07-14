@@ -7,12 +7,14 @@ import {
   getAllFaculties,
   getFacultiesByDepartment,
   uploadFaculty,
+  getAllDepartments,
 } from "../controllers/faculty.controller.js";
 
 const router = express.Router();
 
-router.get("/faculties/:department", tryCatch(getFacultiesByDepartment));
 router.get("/faculties", tryCatch(getAllFaculties));
+router.get("/faculties/departments", tryCatch(getAllDepartments));
+router.get("/faculties/:department", tryCatch(getFacultiesByDepartment));
 router.post(
   "/upload-faculty",
   authCheck,

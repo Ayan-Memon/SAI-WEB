@@ -7,9 +7,7 @@ import {
 } from "../../config/config.js";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // 587 ke liye false
+  service: "gmail",
   auth: {
     type: "OAuth2",
     user: GOOGLE_USER,
@@ -17,8 +15,6 @@ const transporter = nodemailer.createTransport({
     clientSecret: GOOGLE_CLIENT_SECRET,
     refreshToken: GOOGLE_REFRESH_TOKEN,
   },
-  family: 4, // Force IPv4
-  connectionTimeout: 10000, // 10 second timeout, jaldi pata chal jayega fail hua ya nahi
 });
 
 // Verify the connection configuration

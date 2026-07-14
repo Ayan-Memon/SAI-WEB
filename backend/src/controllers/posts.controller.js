@@ -1,6 +1,14 @@
 import imagekit from "../utils/imageKit.js";
 import postModel from "../models/post.model.js";
 
+function slugify(name) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
+
 // upload posts
 export const uploadPosts = async (req, res) => {
   const files = req.files || [];
@@ -14,7 +22,7 @@ export const uploadPosts = async (req, res) => {
     });
   }
 
-  folderName = folderName.trim();
+  folderName = folderName.trim().toLowerCase();
 
   if (files.length === 0) {
     return res.status(400).json({
@@ -34,9 +42,11 @@ export const uploadPosts = async (req, res) => {
       const result = await imagekit.upload({
         file: file.buffer,
         fileName: `${Date.now()}-${file.originalname}`,
-        folder: "/posts",
+        folder: `/posts/${slugify(folderName)}`,
         useUniqueFileName: true,
       });
+
+      folderName = folderName.replace(/\s+/g, " ");
 
       uploaded.push({
         user: user_id,
@@ -87,7 +97,7 @@ export const getAllFolderNames = async (req, res) => {
 };
 
 export const getPostByFolderName = async (req, res) => {
-  const { folderName } = req.query;
+  let { folderName } = req.query;
 
   if (!folderName) {
     return res.status(400).json({
@@ -95,6 +105,9 @@ export const getPostByFolderName = async (req, res) => {
       message: "Folder name is required",
     });
   }
+
+  folderName = folderName.trim().toLowerCase().replace(/\s+/g, " ");
+
   res
     .status(200)
     .json({ success: true, data: await postModel.find({ folderName }) });
@@ -124,4 +137,31 @@ export const deletePost = async (req, res) => {
   await postModel.findByIdAndDelete(id);
 
   return res.status(200).json({ success: true });
+};
+
+export const deleteFolder = async (req, res) => {
+  let { folderName } = req.params;
+
+  console.log(folderName);
+
+  if (!folderName) {
+    return res.status(400).json({
+      success: false,
+      message: "Folder name is required",
+    });
+  }
+
+  folderName = folderName.trim();
+
+  const posts = await postModel.find({ folderName });
+
+  const imagekitFolderName = slugify(folderName);
+
+  await imagekit.deleteFolder(`/posts/${imagekitFolderName}`);
+
+  await postModel.deleteMany({ folderName });
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Folder deleted successfully" });
 };

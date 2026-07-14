@@ -21,7 +21,20 @@ export const authCheck = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, ACCESS_JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, ACCESS_JWT_SECRET);
+    } catch (jwtError) {
+      // TokenExpiredError / JsonWebTokenError -> must be a clean 401
+      // so the frontend refresh-token interceptor can catch it.
+      return res.status(401).json({
+        success: false,
+        message:
+          jwtError.name === "TokenExpiredError"
+            ? "Access token expired"
+            : "You are not logged in",
+      });
+    }
 
     if (!decoded) {
       return res.status(401).json({
@@ -31,6 +44,13 @@ export const authCheck = async (req, res, next) => {
     }
 
     const user = await userModel.findById(decoded.user).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not logged in",
+      });
+    }
 
     req.user = user;
     next();

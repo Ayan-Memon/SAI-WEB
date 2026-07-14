@@ -15,12 +15,17 @@ export const getFacultiesByDepartment = async (req, res) => {
     .json({ success: true, data: await facultyModel.find({ department }) });
 };
 
+export const getAllDepartments = async (req, res) => {
+  res
+    .status(200)
+    .json({ success: true, data: await facultyModel.distinct("department") });
+};
 export const uploadFaculty = async (req, res) => {
-  const { name, department, gender, description } = req.body;
-  const file = req.file;
+  const { name, department, description } = req.body;
+  const file = req.file || {};
   const user = req.user._id;
 
-  if (!name || !department || !gender || !file || !description) {
+  if (!name || !department || !description) {
     return res.status(400).json({
       success: false,
       message: "All fields are required",
@@ -35,13 +40,13 @@ export const uploadFaculty = async (req, res) => {
     file: file.buffer,
     fileName: `${Date.now()}-${file.originalname}`,
     folder: "/faculties",
+    useUniqueFileName: true,
   });
 
   const faculty = await facultyModel.create({
     user,
     name,
     department,
-    gender,
     description: descriptionArr,
     imageUrl: result.url,
     fieldId: result.fileId,

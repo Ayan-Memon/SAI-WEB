@@ -15,10 +15,8 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
     },
     logout: (state) => {
-      state.user = null;
       state.accessToken = null;
       state.isAuthenticated = false;
-      state.isVerified = false;
     },
   },
 });

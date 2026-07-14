@@ -1,13 +1,91 @@
 "use client";
-import { getFaculties } from "@/lib/facultyQueries";
-import { useQuery } from "@tanstack/react-query";
+import {
+  deleteFaculty,
+  getFaculties,
+  uploadFaculty,
+} from "@/lib/facultyQueries";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heading } from "../UI/Heading";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { Plus } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import ImageDropzone from "../UI/ImageDropzone";
+import { Trash, X } from "lucide-react";
+import { useForm } from "react-hook-form";
+
+const MotionCross = motion.create(X);
+const MotionTrash = motion.create(Trash);
+
+const DepartmentHeading = ({ children }) => (
+  <motion.h1
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.5 }}
+    transition={{ duration: 0.6, ease: "easeOut" }}
+    className="text-center z-10 capitalize font-heading text-2xl sm:text-3xl md:text-4xl font-medium text-secondary px-2"
+  >
+    {children}
+  </motion.h1>
+);
 
 const FacultyPage = () => {
+  const queryClient = useQueryClient();
+
+  const [formData, setFormData] = useState({
+    image: "",
+  });
+
+  const [imageError, setIamgeError] = useState("");
+
+  const facultyMutation = useMutation({
+    mutationFn: uploadFaculty,
+    mutationKey: ["uploading-faculty"],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+      setIsModalOpen(false);
+      setFormData({ image: "" });
+      setIamgeError("");
+      reset();
+    },
+    retry: 1,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteFaculty,
+    mutationKey: ["deleting-faculty"],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+      setDeleteFacultyId(null);
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
+
+  const onSuccess = (data) => {
+    if (!formData.image) {
+      setIamgeError("Please upload an image");
+      return;
+    }
+    setValue("image", formData.image);
+    facultyMutation.mutate(data);
+  };
+
+  const onError = () => {
+    if (formData.image) return;
+    setIamgeError("Please upload an image");
+  };
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // [isDropdownOpen, setIsDropdownOpen]
+
   const {
     data = [],
     isPending,
@@ -19,6 +97,22 @@ const FacultyPage = () => {
     gcTime: 1000 * 60 * 60 * 24,
   });
 
+  const { data: user } = useCurrentUser();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [deleteFacultyId, setDeleteFacultyId] = useState(null);
+
+  useEffect(() => {
+    if (isModalOpen || deleteFacultyId) {
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+      return;
+    }
+    document.body.style.overflow = "auto";
+    document.body.style.height = "100%";
+  }, [isModalOpen, deleteFacultyId]);
+
   const departmentDataArr = data?.data?.reduce((acc, data) => {
     if (!acc[data.department]) {
       acc[data.department] = [];
@@ -29,43 +123,289 @@ const FacultyPage = () => {
     return acc;
   }, {});
 
+  const departments = departmentDataArr && Object.keys(departmentDataArr);
+
+  const isAdminRole = user?.role === "admin" || user?.role === "social_handler";
+
+  const handleFacultyDelete = (id) => {
+    deleteMutation.mutate(id);
+  };
+
   return (
     <>
-      <section>
-        <Heading>Our Faculties</Heading>
-        <div>
+      <section className="w-full min-h-[80vh]">
+        <div className="flex max-sm:flex-col gap-2 justify-between items-center lg:px-12 md:px-10 sm:px-8 px-4 md:pt-5 sm:pt-4 pt-2">
+          <Heading className={`mt-0! ${isAdminRole ? "" : "flex-1"}`}>
+            Faculties
+          </Heading>
+
+          {isAdminRole && (
+            <motion.button
+              className="btn px-4 py-2.5 bg-secondary text-primary rounded-4xl font-body font-medium lg:text-xl text-md max-sm:w-full capitalize cursor-pointer"
+              whileHover={{ background: "rgba(45, 41, 38, 0.90)" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+            >
+              Upload New Faculty
+            </motion.button>
+          )}
+        </div>
+
+        <div className="px-3 sm:px-6 md:px-10 lg:px-12">
+          {departmentDataArr && (
+            <div className="my-10 sm:my-16 md:my-20 lg:my-24 flex flex-col gap-4 md:gap-8 justify-center items-center">
+              <DepartmentHeading>{`Principal`}</DepartmentHeading>
+              <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full">
+                {departmentDataArr["Principal"]?.map((teacher) => (
+                  <FacultyCard
+                    key={`teacher-${teacher.name}`}
+                    teacher={teacher}
+                    conditions={true}
+                    isAdminRole={isAdminRole}
+                    setDeleteFacultyId={setDeleteFacultyId}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {departmentDataArr &&
             Object.entries(departmentDataArr).map(([department, teachers]) => {
               const conditions =
                 department.toLowerCase() === "principal" ||
                 department.toLowerCase() === "principle";
+
+              if (conditions) {
+                return null;
+              }
+
               return (
                 <div
                   key={department}
-                  className="my-18 flex flex-col gap-10 justify-center items-center"
+                  className="my-10 sm:my-16 md:my-20 lg:my-24 flex flex-col gap-4 md:gap-8 justify-center items-center"
                 >
-                  <h1
-                    className={`mt-5 text-center z-10 capitalize font-heading bg-primary text-4xl font-medium text-secondary px-2`}
-                  >
-                    {`${department} ${conditions ? "" : "department"}`}
-                  </h1>
-                  <div className="w-full flex justify-center items-center">
-                    <div
-                      className={`py-6 w-full ${teachers.length === 1 ? "flex justify-center" : "grid grid-cols-[repeat(auto-fit,minmax(360px,450px))] "} gap-2 `}
-                    >
-                      {teachers.map((teacher) => (
-                        <FacultyCard
-                          key={`teacher-${teacher.name}`}
-                          teacher={teacher}
-                          conditions={conditions}
-                        />
-                      ))}
-                    </div>
+                  <DepartmentHeading>{`${department} department`}</DepartmentHeading>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full">
+                    {teachers.map((teacher) => (
+                      <FacultyCard
+                        key={`teacher-${teacher.name}`}
+                        teacher={teacher}
+                        conditions={conditions}
+                        isAdminRole={isAdminRole}
+                        setDeleteFacultyId={setDeleteFacultyId}
+                      />
+                    ))}
                   </div>
                 </div>
               );
             })}
         </div>
+
+        {(isModalOpen || deleteFacultyId) && (
+          <div
+            className="modal-overlay fixed w-full left-0 h-[calc(100vh+120px)] -top-30 z-10 bg-black/5 backdrop-blur-md"
+            onClick={() => {
+              if (isModalOpen) {
+                setIsModalOpen((prev) => !prev);
+                reset();
+                setIsDropdownOpen(false);
+                setIamgeError("");
+              }
+              if (deleteFacultyId) {
+                setDeleteFacultyId(null);
+              }
+            }}
+          />
+        )}
+
+        {isModalOpen && (
+          <div className="bg-primary absolute -translate-x-2/4 -translate-y-2/4 left-2/4 top-[40%] min-w-sm sm:min-w-md max-w-xl w-full px-8 py-6 rounded-4xl z-20">
+            <div className="w-full">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  reset();
+                  setIsDropdownOpen(false);
+                  setIamgeError("");
+                  setFormData((prev) => ({ ...prev, image: null }));
+                }}
+                className="w-max ml-auto block"
+              >
+                <MotionCross
+                  className="w-6 h-6 text-gray-500 cursor-pointer"
+                  whileHover={{ scale: 1.1, color: "red" }}
+                  transition={{ duration: 300 }}
+                />
+              </button>
+            </div>
+            {/* faculty name */}
+            <form>
+              <div className="relative pb-6">
+                <label
+                  className="block mb-2 text-sm font-semibold text-secondary"
+                  htmlFor="facultyname"
+                >
+                  Faculty Name
+                </label>
+
+                <input
+                  type="text"
+                  placeholder={"Faculty Name"}
+                  name="facultyname"
+                  id="facultyname"
+                  required
+                  autoComplete="off"
+                  className={`w-full h-14 rounded-2xl bg-white px-5 outline-none transition-all ${false ? "border-red-500 border-2" : "focus:border-secondary/20 border border-transparent"}`}
+                  {...register("name", {
+                    required: "faculty name is required",
+                  })}
+                />
+                {errors.name && (
+                  <p className="text-red-500 absolute left-1 bottom-0 font-body text-md">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+              {/* descriptiom */}
+              <div className="relative pb-6">
+                <label
+                  className="block mb-2 text-sm font-semibold text-secondary"
+                  htmlFor="facultydescription"
+                >
+                  Faculty Description
+                </label>
+
+                <input
+                  type="text"
+                  placeholder={"Lecturer English, Lecturer Mathematics..."}
+                  name="facultydescription"
+                  id="facultydescription"
+                  required
+                  autoComplete="off"
+                  className={`w-full h-14 rounded-2xl bg-white px-5 outline-none transition-all ${false ? "border-red-500 border-2" : "focus:border-secondary/20 border border-transparent"}`}
+                  {...register("description", {
+                    required: "description is required",
+                  })}
+                />
+                {errors.description && (
+                  <p className="text-red-500 absolute left-1 bottom-0 font-body text-md">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+              {/* department */}
+              <div className="relative pb-6">
+                <label
+                  className="block mb-2 text-sm font-semibold text-secondary"
+                  htmlFor="facultydepartment"
+                >
+                  Department
+                </label>
+
+                <input
+                  type="text"
+                  placeholder={"Physics, Chemistry..."}
+                  name="facultydepartment"
+                  id="facultydepartment"
+                  required
+                  autoComplete="off"
+                  onFocus={() => setIsDropdownOpen(true)}
+                  onBlur={() => setIsDropdownOpen(false)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && setIsDropdownOpen(false)
+                  }
+                  className={`w-full h-14 rounded-2xl bg-white px-5 outline-none transition-all ${false ? "border-red-500 border-2" : "focus:border-secondary/20 border border-transparent"}`}
+                  {...register("department", {
+                    required: "department is required",
+                  })}
+                />
+                {errors.department && (
+                  <p className="text-red-500 absolute left-1 bottom-0 font-body text-md">
+                    {errors.department.message}
+                  </p>
+                )}
+                {isDropdownOpen && (
+                  <div className="min-h-60 h-full overflow-auto absolute top-[calc(100%-20px)] left-0 bg-white w-full rounded-2xl z-10">
+                    {departments.map((department) => (
+                      <div
+                        key={department}
+                        onClick={() => {
+                          setValue("department", department, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          });
+                          setIsDropdownOpen(false);
+                        }}
+                        className="px-5 py-2 cursor-pointer hover:bg-gray-100"
+                      >
+                        {department}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </form>
+            <div className="pb-6 relative">
+              <ImageDropzone setFormData={setFormData} type="single" />
+              {imageError && (
+                <p className="text-red-500 absolute left-1 bottom-0 font-body text-md">
+                  {imageError}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleSubmit(onSuccess, onError)}
+              disabled={facultyMutation.isPending}
+              className="bg-secondary text-primary font-body font-medium uppercase text-lg sm:text-xl rounded-4xl px-8 py-4 w-full mt-4 flex gap-4 justify-center items-center"
+            >
+              {facultyMutation.isPending && (
+                <div className="h-5 w-5 mt-0.5 border-3 border-gray-300 rounded-full border-t-secondary animate-spin"></div>
+              )}
+              <p className="text-white font-semibold">
+                {facultyMutation.isPending
+                  ? "Creating Faculty"
+                  : "Create Faculty"}
+              </p>
+            </button>
+          </div>
+        )}
+
+        {deleteFacultyId && (
+          <div
+            className={`fixed -translate-x-2/4 -translate-y-2/4 top-2/4 left-2/4 max-w-120 py-4 px-8 rounded-4xl w-full z-20 bg-primary flex flex-col gap-4`}
+          >
+            <div className="flex flex-col gap-2 w-full">
+              <h2 className="text-center text-lg text-secondary font-body font-semibold">
+                Are you sure you want to delete this Faculty?
+              </h2>
+              <p className="text-center text-sm text-secondary font-body font-medium capitalize">
+                {`Faculty Name : ${data?.data?.filter((curElem) => curElem._id === deleteFacultyId)[0]?.name}`}
+              </p>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <motion.button
+                className="flex-1 rounded-xl bg-[#DC2626] py-3 font-medium text-white cursor-pointer"
+                whileHover={{ background: "#B91C1C" }}
+                onClick={() => handleFacultyDelete(deleteFacultyId)}
+                disabled={deleteMutation.isPending}
+              >
+                Delete
+              </motion.button>
+
+              <motion.button
+                className="flex-1 rounded-xl bg-[#F3F4F6] py-3 font-medium text-[#374151] cursor-pointer"
+                whileHover={{ background: "#E5E7EB" }}
+                onClick={() => setDeleteFacultyId(null)}
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </motion.button>
+            </div>
+          </div>
+        )}
       </section>
     </>
   );
@@ -73,20 +413,43 @@ const FacultyPage = () => {
 
 export default FacultyPage;
 
-const FacultyCard = ({ teacher, conditions }) => {
-  const { name, description, imageUrl } = teacher;
+const FacultyCard = ({
+  teacher,
+  conditions,
+  isAdminRole = false,
+  setDeleteFacultyId,
+}) => {
+  const { name, description, imageUrl, _id } = teacher;
 
   return (
-    <motion.div className="flex justify-center p-3 sm:p-5 md:p-6">
+    <div
+      className={` ${conditions ? "lg:max-w-100 md:max-w-80 max-w-60" : ""} w-full h-full relative`}
+    >
       <div
-        className="
+        className={`
           relative
           w-full
-          
+          h-full
+          min-h-40.5
+          sm:min-h-48.5
+          md:min-h-37.5
+          lg:min-h-42.5
 
-          rounded-[28px]
-          sm:rounded-[34px]
-          lg:rounded-[42px]
+          flex
+          flex-col
+          md:flex-row
+
+          items-center
+          md:items-start
+
+          text-center
+          md:text-left
+
+          gap-3
+          md:gap-5
+
+          rounded-2xl
+          md:rounded-[28px]
 
           overflow-hidden
 
@@ -96,101 +459,70 @@ const FacultyCard = ({ teacher, conditions }) => {
           to-[#342d2b]
 
           border border-white/10
-          shadow-[0_25px_80px_rgba(0,0,0,.35)]
-        "
+          shadow-[0_15px_50px_rgba(0,0,0,.35)]
+
+          p-3
+          sm:p-4
+          md:p-6
+        `}
       >
-        {/* Background Glow */}
-        <div className="absolute left-5 top-5 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 rounded-full bg-amber-100/10 blur-3xl" />
+        <div className="absolute left-3 top-3 h-14 w-14 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-full bg-amber-100/10 blur-2xl" />
 
-        <div className="absolute right-5 bottom-0 h-32 w-32 sm:h-44 sm:w-44 lg:h-56 lg:w-56 rounded-full bg-orange-100/10 blur-3xl" />
+        <div className="absolute right-3 bottom-0 h-16 w-16 sm:h-24 sm:w-24 md:h-28 md:w-28 rounded-full bg-orange-100/10 blur-2xl" />
 
-        {/* Content */}
-        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 p-5 sm:p-6">
-          {/* Image */}
-          <div
-            className="
-              w-28 h-28
-              sm:w-32 sm:h-32
-              lg:w-36 lg:h-36
+        <div
+          className="
+            relative
+            w-14 h-14
+            sm:w-16 sm:h-16
+            md:w-20 md:h-20
+            lg:w-24 lg:h-24
 
-              rounded-full
-              overflow-hidden
-              border-4 border-primary/80
-              shrink-0
-            "
-          >
-            <Image
-              src={imageUrl}
-              alt={name}
-              width={300}
-              height={300}
-              className="w-full h-full object-cover object-center"
-            />
+            rounded-full
+            overflow-hidden
+            border-2 md:border-4 border-primary/80
+            shrink-0
+          "
+        >
+          <Image
+            src={imageUrl}
+            alt={name}
+            width={200}
+            height={200}
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
+
+        <div className="relative flex-1 min-w-0 w-full flex flex-col justify-center text-primary">
+          <h2 className="font-heading font-semibold text-xs sm:text-sm md:text-base lg:text-lg leading-tight line-clamp-2">
+            {!conditions && <span>Prof. </span>}
+            {name}
+          </h2>
+
+          <div className="flex items-center justify-center md:justify-start gap-1.5 my-1.5 md:my-2">
+            <div className="h-0.5 w-8 rounded-full bg-amber-300" />
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-300" />
           </div>
 
-          {/* Text */}
-          <div className="flex-1 text-primary text-center sm:text-left">
-            {/* Heading */}
-            <h2 className="font-heading font-semibold text-xl sm:text-2xl lg:text-3xl leading-tight">
-              {!conditions && <span>Prof. </span>}
-
-              {name.split(" ").map((curElem, idx) => (
-                <React.Fragment key={`${curElem}-${idx}`}>
-                  <span>{curElem} </span>
-
-                  {!conditions && idx === 1 && (
-                    <br className="hidden lg:block" />
-                  )}
-                </React.Fragment>
-              ))}
-            </h2>
-
-            {/* Yellow Line */}
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 my-3">
-              <div className="h-0.5 w-12 sm:w-14 rounded-full bg-amber-300" />
-              <div className="w-2 h-2 rounded-full bg-amber-300" />
-            </div>
-
-            {/* Description */}
-            <div className="text-sm sm:text-base leading-relaxed space-y-1">
-              {description.map((curPara, idx) => (
-                <p key={idx}>{curPara}</p>
-              ))}
-            </div>
+          <div
+            className={`text-[10px] sm:text-xs md:text-sm leading-snug space-y-0.5 ${!conditions ? "line-clamp-2 md:line-clamp-3" : ""} `}
+          >
+            {description.map((curPara, idx) => (
+              <p key={idx}>{curPara}</p>
+            ))}
           </div>
         </div>
       </div>
-    </motion.div>
+      {isAdminRole && (
+        <motion.button
+          className="absolute right-4 bottom-4 text-primary cursor-pointer z-10"
+          whileHover={{ color: "#C3110C" }}
+          whileTap={{ color: "#C3110C" }}
+          onClick={() => setDeleteFacultyId(_id)}
+        >
+          <MotionTrash className="sm:w-5.5 sm:h-5.5 w-4 h-4 " />
+        </motion.button>
+      )}
+    </div>
   );
 };
-// <div className="relative w-70 h-100 rounded-2xl">
-//   {/* background  */}
-//   <div className="bg absolute w-[calc(100%-60px)] h-[inherit] bg-secondary rounded-[inherit] z-0 -left-14 rotate-12 -top-2 text-primary/10">
-//     <p className="absolute -rotate-90 font-bebas font-bold tracking-[0.5rem] text-7xl bottom-20 left-10 -translate-x-1/2 -translate-y-1/2">
-//       FACULTY
-//     </p>
-//   </div>
-//   {/* <div className="absolute inset-0 rounded-[inherit]  border border-white/20 bg-linear-to-br bg-primary/90 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.08)] z-10"> */}
-//   <div
-//     className="absolute inset-0 rounded-[inherit]  border border-white/10 bg-linear-to-br bg-primary/90 backdrop-blur-md
-// shadow-[inset_-12px_-8px_40px_#46464620] z-10"
-//   >
-//     <Image
-//       src={imageUrl}
-//       alt={name}
-//       width={300}
-//       height={300}
-//       className="w-35 h-35 rounded-full mx-auto object-cover object-top mt-10 border-4 border-secondary "
-//     />
-//     <div className="mt-6 px-4">
-//       <h1 className="text-center text-secondary font-heading text-2xl font-bold leading-tight ">
-//         {name}
-//       </h1>
-//       <div className="text-center text-secondary font-body text-sm font-medium leading-relaxed mt-2">
-//         {description.map((curPara, idx) => (
-//           <p key={`para-${idx}`}>{curPara}</p>
-//         ))}
-//       </div>
-//     </div>
-//   </div>
-// </div>

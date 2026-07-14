@@ -31,7 +31,11 @@ export const PasswordResetForm = ({ code }) => {
 
   const router = useRouter();
 
-  const { mutate: setPassword, error } = useMutation({
+  const {
+    mutate: setPassword,
+    isPending,
+    error,
+  } = useMutation({
     mutationFn: resetPassword,
     onSuccess: (data) => {
       setTopError("");
@@ -45,7 +49,7 @@ export const PasswordResetForm = ({ code }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isPending, isValid },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(resetPasswordSchema),
     mode: "onChange",

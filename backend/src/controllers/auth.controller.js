@@ -16,8 +16,9 @@ import sessionModel from "../models/session.model.js";
 import passwordResetModel from "../models/resetPassword.model.js";
 // email
 // import { sendEmail } from "../services/email/resend.email.service.js";  <RESEND EMAIL SERVICE>
-// import sendEmail from "../services/email/nodemailer.email.service.js"; <NODEMAILER EMAIL SERVICE>
-import sendEmail from "../services/email/brevo.email.service.js";
+//  <NODEMAILER EMAIL SERVICE>
+import sendEmail from "../services/email/nodemailer.email.service.js";
+// import sendEmail from "../services/email/brevo.email.service.js";
 import verifyEmailTemplate from "../services/email/templates/verifyEmail.template.js";
 import forgetPasswordTemplate from "../services/email/templates/forgetPassword.template.js";
 // config
@@ -40,7 +41,7 @@ export const register = async (req, res) => {
   }
 
   if (!validation.success) {
-    zodErrorValidator(validation, res);
+    return zodErrorValidator(validation, res);
   }
 
   const { username, email, password, confirmPassword } = validation.data;
@@ -70,7 +71,7 @@ export const register = async (req, res) => {
   // create user
 
   const newUser = await userModel.create({
-    username,
+    username: username.toLowerCase(),
     email,
     password: hashedPassword,
   });
@@ -97,9 +98,9 @@ export const register = async (req, res) => {
 
   const html = verifyEmailTemplate(verificationLink);
 
-  await sendEmail(email, subject, html);
+  // await sendEmail(email, subject, html);
 
-  // await sendEmail(email, subject, "Verification Link", html);
+  await sendEmail(email, subject, "Verification Link", html);
 
   //   const refreshToken = jwt.sign({ user: newUser._id }, REFRESH_JWT_SECRET, {
   //     expiresIn: "7d",
@@ -154,7 +155,7 @@ export const login = async (req, res) => {
   }
 
   if (!validation.success) {
-    zodErrorValidator(validation, res);
+    return zodErrorValidator(validation, res);
   }
 
   const { email, password } = validation.data;
@@ -317,7 +318,7 @@ export const sendVerificationEmail = async (req, res) => {
   const validation = emailZodSchema.safeParse(req.body);
 
   if (!validation.success) {
-    zodErrorValidator(validation, res);
+    return zodErrorValidator(validation, res);
   }
 
   const { email } = validation.data;
@@ -358,9 +359,9 @@ export const sendVerificationEmail = async (req, res) => {
 
   const html = verifyEmailTemplate(verificationLink);
 
-  await sendEmail(email, subject, html);
+  // await sendEmail(email, subject, html);
 
-  // await sendEmail(email, subject, "Verification Link", html);
+  await sendEmail(email, subject, "Verification Link", html);
 
   res.status(200).json({
     success: true,
@@ -429,7 +430,7 @@ export const forgetPasswordRequest = async (req, res) => {
   const validation = emailZodSchema.safeParse(req.body);
 
   if (!validation.success) {
-    zodErrorValidator(validation, res);
+    return zodErrorValidator(validation, res);
   }
 
   const { email } = validation.data;
@@ -484,7 +485,7 @@ export const forgetPassword = async (req, res) => {
   const validation = forgetPasswordZodSchema.safeParse(req.body);
 
   if (!validation.success) {
-    zodErrorValidator(validation, res);
+    return zodErrorValidator(validation, res);
   }
 
   const { password, confirmPassword, passwordResetToken } = validation.data;

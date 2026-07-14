@@ -17,7 +17,7 @@ router.get(
   tryCatch(getAllUsers),
 );
 router.patch(
-  "/update-role/:id",
+  "/update-role",
   authCheck,
   authorizeRole("admin"),
   tryCatch(updateUserRole),

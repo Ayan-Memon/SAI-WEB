@@ -215,7 +215,7 @@ export const Navbar = () => {
                 return null;
               }
 
-              if (user?.role !== "/admin" && page.link === "/dashboard") {
+              if (user?.role !== "admin" && page.link === "/dashboard") {
                 return null;
               }
 
@@ -223,36 +223,6 @@ export const Navbar = () => {
                 return null;
               }
               return (
-                // <Link
-                //   href={page.link}
-                //   key={page.name}
-                //   onMouseEnter={() => {
-                //     setIsHovered(idx);
-                //   }}
-                //   onMouseLeave={() => setIsHovered(null)}
-                //   onClick={() => (resize <= 1024 ? setIsOpen(false) : null)}
-                //   className={`xl:py-2 lg:py-3 py-4 px-4 relative xl:text-lg md:text-md text-sm font-heading capitalize cursor-pointer max-lg:border-b border-b-secondary/30 `}
-                // >
-                //   {/* {(isCurrentHover || isActive) && (
-                //     <motion.div
-                //       layoutId="hover"
-                //       transition={{
-                //         type: "spring",
-                //         stiffness: 500,
-                //         damping: 35,
-                //       }}
-                //       className="absolute lg:inset-0 max-lg:inset-x-0 max-lg:inset-y-2  rounded-full bg-secondary "
-                //     />
-                //   )} */}
-
-                //   <span
-                //     className={`relative z-10 transition-colors duration-200  ${
-                //       showHoverBg ? "text-white" : "text-secondary"
-                //     } }  `}
-                //   >
-                //     {page.name}
-                //   </span>
-                // </Link>
                 <Link
                   href={page.link}
                   key={page.name}
@@ -294,7 +264,7 @@ export const Navbar = () => {
                   <div className="flex flex-col">
                     <Link
                       href="/gallery"
-                      className={`py-2 px-2 relative xl:text-lg md:text-md text-sm font-heading capitalize cursor-pointer border-b border-b-secondary/30 ${pathname === "/gallery" ? "bg-secondary text-white/90" : ""} transition-all duration-300`}
+                      className={`py-2 px-2 relative xl:text-lg md:text-md text-sm font-heading capitalize cursor-pointer border-b border-b-secondary/30 ${pathname.includes("/gallery") ? "bg-secondary text-white/90" : ""} transition-all duration-300`}
                       onClick={() => setExtraIsHovered(false)}
                     >
                       gallery
@@ -316,7 +286,7 @@ export const Navbar = () => {
                     </Link>
                     <Link
                       href={"/contact-us"}
-                      className={`xl:hidden block text-nowrap py-2 px-2 relative xl:text-lg md:text-md text-sm font-heading capitalize cursor-pointer ${pathname === "/downloads" ? "bg-secondary text-white/90" : ""} transition-all duration-300`}
+                      className={`xl:hidden block text-nowrap py-2 px-2 relative xl:text-lg md:text-md text-sm font-heading capitalize cursor-pointer ${pathname.includes("/course") ? "bg-secondary text-white/90" : ""} transition-all duration-300`}
                       onClick={() => setExtraIsHovered(false)}
                     >
                       Contact Us

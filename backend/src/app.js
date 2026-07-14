@@ -36,4 +36,17 @@ app.use("/api/post", postRouter);
 // faculty router
 app.use("/api", facultyRouter);
 
+// global error handler — ensures any next(error) call still returns
+// clean JSON (and the correct status code) instead of Express's
+// default HTML/500 response
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    message: err.message || "Something went wrong",
+  });
+});
+
+
 export default app;

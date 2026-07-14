@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "./axios.instance";
 
 export const getGalleryFolders = async () => {
@@ -23,5 +24,10 @@ export const uploadFolder = async (data) => {
     formData.append("images", image);
   });
   const res = await api.post("/post/upload-posts", formData);
+  return res.data;
+};
+
+export const deleteFolderApi = async (folderName) => {
+  const res = await api.delete(`/post/delete-folder/${folderName}`);
   return res.data;
 };

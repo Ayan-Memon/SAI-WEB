@@ -8,11 +8,11 @@ export const UserProfile = ({ user }) => {
 
   return (
     <div
-      className="relative bg-secondary rounded-full xl:w-10 xl:h-10 lg:w-9 lg:h-9 w-8 h-8 flex justify-center items-center cursor-pointer"
+      className="relative  bg-secondary rounded-full xl:w-10 xl:h-10 lg:w-9 lg:h-9 w-8 h-8 flex justify-center items-center cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="uppercase text-white xl:text-lg md:text-md text-sm md:text-md text-sm font-body">
+      <p className="uppercase absolute -translate-x-2/4 -translate-y-2/4 left-2/4 top-2/4 text-white xl:text-lg md:text-md text-sm font-body">
         {username[0]}
       </p>
       <div className="absolute top-full right-0 ">

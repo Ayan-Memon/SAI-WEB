@@ -7,6 +7,10 @@ import Masonry from "react-masonry-css";
 import { Heading } from "../UI/Heading";
 
 export const Posts = ({ folder }) => {
+  const folderName = decodeURIComponent(folder)
+    .replace(/%20/g, " ")
+    .toLocaleLowerCase()
+    .trim();
   const breakpointColumns = {
     default: 5,
     1280: 4,
@@ -19,14 +23,15 @@ export const Posts = ({ folder }) => {
     isPending,
     error,
   } = useQuery({
-    queryKey: ["posts", folder],
+    queryKey: ["posts", folderName],
     queryFn: () => getPost(folder),
     staleTime: 1000 * 60 * 20,
     gcTime: 1000 * 60 * 10,
   });
+
   return (
     <section className="w-full min-h-screen">
-      <Heading>{decodeURIComponent(folder)}</Heading>
+      <Heading>{folderName}</Heading>
       <Masonry
         breakpointCols={breakpointColumns}
         className="flex md:gap-4 gap-2 lg:px-16 lg:py-8 md:px-12 md:py-6 sm:px-8 sm:py-4 px-4 py-2"

@@ -4,6 +4,7 @@ export const createRateLimiter = ({
   minutes = 15,
   maxAttempts = 5,
   message = "Too many requests",
+  handler,
 }) => {
   return rateLimit({
     windowMs: minutes * 60 * 1000,
@@ -17,5 +18,6 @@ export const createRateLimiter = ({
 
     standardHeaders: true,
     legacyHeaders: false,
+    ...(handler ? { handler } : {}),
   });
 };
