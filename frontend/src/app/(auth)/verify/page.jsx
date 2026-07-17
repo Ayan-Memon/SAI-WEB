@@ -1,5 +1,8 @@
 import { ErrorForm } from "../../../components/UI/ErrorForm";
 
+export const metadata = {
+  title: "Verify",
+};
 
 const page = async ({ searchParams }) => {
   const params = await searchParams;

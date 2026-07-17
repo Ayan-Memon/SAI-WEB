@@ -1,12 +1,16 @@
-import EmailForm from '@/components/UI/EmailForm'
-import React from 'react'
+import EmailForm from "@/components/UI/EmailForm";
+import React from "react";
+
+export const metadata = {
+  title: "Resend Email",
+};
 
 const resendEmail = () => {
   return (
     <section className="w-full max-h-screen h-full flex justify-center items-center ">
-        <EmailForm type={"verification"} />
-      </section>
-  )
-}
+      <EmailForm type={"verification"} />
+    </section>
+  );
+};
 
-export default resendEmail
+export default resendEmail;

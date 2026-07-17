@@ -145,7 +145,7 @@ export const Navbar = () => {
       <header
         className={`w-full ${(!isOpen || !isMobile) && "sm:py-4 py-2 sm:px-4 px-2"} fixed z-100 right-0 top-0 max-w-355 -translate-x-2/4 left-2/4 `}
       >
-        <nav className="py-2 px-4 flex justify-between items-center gap-8 rounded-full outline-1 outline-offset-2 outline-secondary/20 w-full bg-primary/60 backdrop-blur-md">
+        <nav className="py-2 px-4 flex justify-between items-center gap-8 rounded-full outline-1 outline-offset-2 outline-white/40 w-full bg-primary/60 backdrop-blur-md  shadow-[0_4px_10px_rgba(0,0,0,0.04),0_12px_35px_rgba(106,78,46,0.12)]">
           <Link href="/" className="flex shrink-0">
             {/* <Image
                 src="/logo.png"
@@ -306,7 +306,7 @@ export const Navbar = () => {
             </Link>
             {user ? (
               <>
-                <button className="lg:block hidden xl:text-lg md:text-md text-sm px-4 py-2 rounded-full tracking-tight font-heading cursor-pointer bg-white whitespace-nowrap">
+                <button className="lg:block hidden xl:text-lg md:text-md text-sm px-4 py-2 rounded-full tracking-tight font-heading cursor-pointer bg-secondary text-white whitespace-nowrap">
                   Log Out
                 </button>
                 <div>

@@ -19,6 +19,25 @@ import { Folder, Trash, X } from "lucide-react";
 const MotionCross = motion.create(X);
 const MotionTrash = motion.create(Trash);
 
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
 export const GalleryFolders = () => {
   const [formData, setFormData] = useState({
     folderName: "",
@@ -110,6 +129,8 @@ export const GalleryFolders = () => {
     deleteMutation.mutate(deleteFolder);
   };
 
+  const isReady = !isPending && data?.folders?.length > 0;
+
   return (
     <section className=" w-full min-h-[80vh]">
       <div className="flex max-sm:flex-col gap-2 justify-between items-center lg:px-12 md:px-10 sm:px-8 px-4 md:pt-5 sm:pt-4 pt-2">
@@ -132,7 +153,11 @@ export const GalleryFolders = () => {
         )}
       </div>
       {/* folders*/}
-      <div
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView={isReady ? "show" : undefined}
+        viewport={{ once: true, amount: 0.3 }}
         className={`grid max-[400px]:grid-cols-[repeat(auto-fit,minmax(120px,1fr))] grid-cols-[repeat(auto-fit,minmax(160px,1fr))] ${data?.folders?.length >= 5 ? "md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))]" : "md:flex md:flex-wrap md:gap-4"} gap-x-6 gap-y-8 lg:py-14
       md:py-12 sm:py-10 py-8 lg:px-12 md:px-10 sm:px-8 px-4 w-full h-full ${!data?.folders?.length ? "relative min-h-[80vh]" : ""} `}
       >
@@ -155,7 +180,7 @@ export const GalleryFolders = () => {
             </h2>
           </div>
         )}
-      </div>
+      </motion.div>
       {/* overlay */}
       {(isModalOpen || deleteFolder) && (
         <div
@@ -281,7 +306,8 @@ const GalleryFolder = ({
       ? "lg:text-lg md:text-md text-sm"
       : "lg:text-xl md:text-lg text-md";
   return (
-    <div
+    <motion.div
+      variants={item}
       className={`folder flex justify-center items-center w-full  ${foldersLength < 5 ? "md:w-max" : ""} h-full cursor-pointer `}
     >
       <div
@@ -328,6 +354,6 @@ const GalleryFolder = ({
           </motion.button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

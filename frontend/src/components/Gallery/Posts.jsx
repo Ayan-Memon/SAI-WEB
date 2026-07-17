@@ -6,6 +6,7 @@ import React from "react";
 import Masonry from "react-masonry-css";
 import { Heading } from "../UI/Heading";
 
+
 export const Posts = ({ folder }) => {
   const folderName = decodeURIComponent(folder)
     .replace(/%20/g, " ")
@@ -34,7 +35,7 @@ export const Posts = ({ folder }) => {
       <Heading>{folderName}</Heading>
       <Masonry
         breakpointCols={breakpointColumns}
-        className="flex md:gap-4 gap-2 lg:px-16 lg:py-8 md:px-12 md:py-6 sm:px-8 sm:py-4 px-4 py-2"
+        className="flex md:gap-4 gap-2 lg:px-16 lg:py-8 md:px-12 md:py-6 px-6 py-4"
         columnClassName="md:space-y-4 space-y-2"
       >
         {data?.map((post, index) => (

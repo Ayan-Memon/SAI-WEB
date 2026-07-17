@@ -1,9 +1,12 @@
 import VerifyEmail from "./VerifyEmail";
 
+export const metadata = {
+  title: "Verify Email",
+};
+
 const page = async ({ searchParams }) => {
   const params = await searchParams;
   const code = params.code;
-
 
   return (
     <>

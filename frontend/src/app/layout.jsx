@@ -2,14 +2,34 @@ import "./globals.css";
 import { Bebas_Neue, Inter, Poppins } from "next/font/google";
 import Providers from "./providers";
 import LenisProvider from "@/components/UI/LenisProvider";
-import Navbar from "@/components/layouts/Navbar";
-import { Footer } from "@/components/layouts/Footer";
 
 export const metadata = {
-  title: "SAI COLLEGE WEBSITE",
-  description: "SAI COLLEGE WEBSITE",
+  metadataBase: new URL("https://siradmajee.vercel.app"),
+  title: {
+    default: "Sir Adamjee Intermediate College | Karachi",
+    template: "%s | Sir Adamjee Intermediate College",
+  },
+  description:
+    "Sir Adamjee Intermediate College offers quality intermediate education in Karachi with modern labs, experienced faculty, and a purpose-built campus.",
+  keywords: [
+    "Sir Adamjee College",
+    "Intermediate College Karachi",
+    "Pre-Medical Pre-Engineering Karachi",
+  ],
+  authors: [{ name: "Sir Adamjee Intermediate College" }],
+  robots: { index: true, follow: true },
+  icons: { icon: "/favicon.ico" },
+  openGraph: {
+    type: "website",
+    locale: "en_PK",
+    url: "https://siradmajee.vercel.app",
+    siteName: "Sir Adamjee Intermediate College",
+    images: ["/og-image.jpg"], // 1200x630
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
-
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -42,11 +62,7 @@ export default function RootLayout({ children }) {
         className="max-w-355 relative mx-auto bg-primary w-full h-full"
         cz-shortcut-listen="true"
       >
-        <Providers>
-          <Navbar />
-          <main className="xl:mt-28 lg:mt-24 md:mt-22 mt-20">{children}</main>
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

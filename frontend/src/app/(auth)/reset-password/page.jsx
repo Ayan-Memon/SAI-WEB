@@ -1,6 +1,10 @@
 import { PasswordResetForm } from "@/components/UI/PasswordResetForm";
 import React from "react";
 
+export const metadata = {
+  title: "Reset Password",
+};
+
 const resetPassword = async ({ searchParams }) => {
   const params = await searchParams;
   const code = params.code;

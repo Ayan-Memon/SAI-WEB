@@ -7,11 +7,11 @@
   --font-body: var(--font-inter);
   --font-bebas: var(--font-bebas);
 
-  --color-primary: #ebe6df;
+  --color-primary: #efe6da;
   --color-secondary: #2d2926;
   --color-body-color: #6b625b;
 }
-
+/* --color-primary: #ebe6df; */
 
 .swiper-pagination-bullet-active {
   background-color: var(--color-primary) !important;

@@ -65,7 +65,9 @@ const WhySection = () => {
         className="absolute inset-0 pointer-events-none
         bg-linear-to-r from-primary/90 via-transparent to-primary/90"
       ></div>
-      <Heading className={"relative"}>Why Sir Adamjee Institute?</Heading>
+      <Heading className={"relative bg-primary"}>
+        Why Sir Adamjee Institute?
+      </Heading>
       {/* cards */}
       <div className="lg:relative grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 md:gap-6 gap-4 md:px-12 sm:px-6 px-4 md:py-8 py-6">
         <WhyCard
@@ -110,10 +112,10 @@ const WhyCard = ({ feature, className, initial }) => {
       className={` w-full flex justify-center items-center max-w-70 ${className && className}`}
       initial={{ opacity: 0, y: 100 }}
       whileInView={{ opacity: 1, y: 0, ...initial }}
-      whileHover={{ scale: 1.05, rotate: 0, cursor: "grab", zIndex: 10 }}
+      whileHover={{ scale: 1.05, rotate: 0, cursor: "pointer", zIndex: 10 }}
       whileTap={{ scale: 1.05, rotate: 0, zIndex: 10 }}
       viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.5, delay: 0.1 * feature.id }}
+      transition={{ duration: 0.3 }}
     >
       <div
         className="card rounded-3xl w-full lg:h-max h-full bg-white
@@ -135,7 +137,7 @@ const WhyCard = ({ feature, className, initial }) => {
           <h2 className="font-heading font-semibold lg:text-[1.7rem] md:text-2xl text-xl text-secondary leading-tight">
             {feature.heading}
           </h2>
-          <ul className="list-disc ml-5 flex flex-col gap-1.5 font-body lg:text-[15px] md:text-sm text-xs font-medium  text-secondary ">
+          <ul className="list-disc ml-5 flex flex-col gap-1.5 font-body lg:text-[15px] md:text-sm text-xs font-medium  text-secondary/80 ">
             {feature.points.map((point, index) => (
               <li key={index}>{point}</li>
             ))}
